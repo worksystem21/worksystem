@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma Bre-B DICE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #193771 0%, #009cd5 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #000000;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #193771, #009cd5);
+            color: #ffffff;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .timeline {
+            padding: 50px 40px;
+            position: relative;
+            background: #ffffff;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 100px;
+            top: 50px;
+            bottom: 50px;
+            width: 6px;
+            background: linear-gradient(to bottom, #ffb716, #ffc629);
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(255, 183, 22, 0.3);
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 50px;
+            position: relative;
+            align-items: flex-start;
+        }
+        
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-date {
+            width: 200px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .date-icon {
+            width: 50px;
+            height: 50px;
+            background: #ffb716;
+            border-radius: 50%;
+            border: 6px solid #ffffff;
+            box-shadow: 0 0 0 3px #ffb716, 0 8px 20px rgba(255, 183, 22, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            position: relative;
+        }
+        
+        .critical .date-icon {
+            background: #193771;
+            box-shadow: 0 0 0 3px #193771, 0 8px 20px rgba(25, 55, 113, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .production .date-icon {
+            background: #009cd5;
+            box-shadow: 0 0 0 3px #009cd5, 0 8px 20px rgba(0, 156, 213, 0.3);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .date-text {
+            background: linear-gradient(135deg, #ffb716, #ffc629);
+            color: #000000;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(255, 183, 22, 0.4);
+            border: 2px solid #ffffff;
+            min-width: 120px;
+        }
+        
+        .critical .date-text {
+            background: linear-gradient(135deg, #193771, #009cd5);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(25, 55, 113, 0.4);
+        }
+        
+        .production .date-text {
+            background: linear-gradient(135deg, #009cd5, #193771);
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 156, 213, 0.4);
+        }
+        
+        .timeline-content {
+            flex: 1;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-left: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 6px solid #ffb716;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .timeline-content:hover {
+            transform: translateX(5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .critical .timeline-content {
+            border-left-color: #193771;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        }
+        
+        .production .timeline-content {
+            border-left-color: #009cd5;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fcff 100%);
+        }
+        
+        .timeline-content h3 {
+            color: #193771;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .timeline-content .icon {
+            font-size: 24px;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            background: rgba(255, 183, 22, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #ffb716;
+        }
+        
+        .critical .detail-item {
+            background: rgba(25, 55, 113, 0.1);
+            border-left-color: #193771;
+        }
+        
+        .production .detail-item {
+            background: rgba(0, 156, 213, 0.1);
+            border-left-color: #009cd5;
+        }
+        
+        .detail-label {
+            font-weight: 700;
+            color: #193771;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+            color: #000000;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #ffb716, #ffc629);
+            padding: 30px 40px;
+            text-align: center;
+            color: #000000;
+        }
+        
+        .footer h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .critical-dates {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .critical-date {
+            background: #193771;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(25, 55, 113, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 50px;
+            }
+            
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .timeline-date {
+                width: 100%;
+                margin-bottom: 20px;
+                align-items: flex-start;
+                flex-direction: row;
+                gap: 20px;
+            }
+            
+            .timeline-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .critical-dates {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Proyecto Bre-B DICE</h1>
+            <p>Cronograma de Implementación 2025</p>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item critical">
+                <div class="timeline-date">
+                    <div class="date-icon">🎯</div>
+                    <div class="date-text">Hasta 13 JUN</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">🔒</span>Fase de Certificación con Transfiya</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value">Pruebas integrales y certificación</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">Pruebas</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">Pruebas DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Habilitar participación de la Entidad Participante en marcha blanca</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">
+                    <div class="date-icon">🧪</div>
+                    <div class="date-text">19-24 JUN</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">🔬</span>Marcha Blanca</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value">Ejecución piloto controlado</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">Pre-productivo</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">Pre-productivo DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Validar operación integral</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">
+                    <div class="date-icon">🔧</div>
+                    <div class="date-text">3-6 JUL</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">⚙️</span>Post Marcha Blanca - Re-testeo</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value">Re-testeo de errores</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">Pre-productivo</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">Pre-productivo DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Corregir fallos detectados durante la marcha blanca</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">
+                    <div class="date-icon">📋</div>
+                    <div class="date-text">7-11 JUL</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">📊</span>Revisión Banrep</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value">Revisión y análisis de resultados marcha blanca</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">N/A (Banrep interno)</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">N/A</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Evaluar condiciones para producción</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item production">
+                <div class="timeline-date">
+                    <div class="date-icon">🚀</div>
+                    <div class="date-text">14 JUL</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">⭐</span>Inicio Productivo DICE</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value"><strong>Inicio Productivo DICE</strong></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">Productivo</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">Productivo DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Inicio de operación en ambiente de Producción</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">
+                    <div class="date-icon">🔄</div>
+                    <div class="date-text">Post 11 JUL</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">📈</span>Continua Certificación de Entidades Participanes que no lograron hacerlo antes del 13/junio/2025</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value">Certificación Entidades Participantes</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">Pruebas</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">Pruebas DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Certificar Entidades Participantes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item critical">
+                <div class="timeline-date">
+                    <div class="date-icon">🔑</div>
+                    <div class="date-text">22 JUL</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">📥</span>Certificación Final para habilitar Entidades Participantes en la carga masiva de llaves alfanuméricas (con previa autorización de los usuarios para este cargue)</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value">Certificación final y recopilación</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">Pruebas → Productivo DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">Pruebas → Productivo DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Habilitar carga masiva llaves alfanuméricas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item critical">
+                <div class="timeline-date">
+                    <div class="date-icon">✅</div>
+                    <div class="date-text">22 AGO</div>
+                </div>
+                <div class="timeline-content">
+                    <h3><span class="icon">🎯</span>Imputación llaves</h3>
+                    <div class="content-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ACTIVIDAD</div>
+                            <div class="detail-value">Procesamiento cargue masivo llaves</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">AMBIENTE</div>
+                            <div class="detail-value">Productivo</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SINCRONIZACIÓN</div>
+                            <div class="detail-value">Productivo DICE</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">OBJETIVO</div>
+                            <div class="detail-value">Imputación llaves alfanuméricas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <h2>Fechas Críticas para Certificación</h2>
+            <div class="critical-dates">
+                <div class="critical-date">13 JUN - Certificación Inicial Entidades Participantes</div>
+                <div class="critical-date">22 JUL - Certificación Final Entidades Parcicipantes</div>
+                <div class="critical-date">22 AGO - Imputación llaves alfanuméricas</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
